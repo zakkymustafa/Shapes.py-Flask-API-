@@ -12,7 +12,8 @@ def home():
 # Start Circle
 @app.route("/area/circle/<int:radius>",methods=["GET"])
 def area_of_circle(radius):
-    return jsonify({"result":radius**2*pi})
+    return jsonify({
+        "result":radius**2*pi})
 
 @app.route("/circumference/circle/<int:radius>",methods=["GET"])
 def circumference_of_circle(radius):
