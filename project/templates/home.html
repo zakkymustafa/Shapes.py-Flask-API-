@@ -2,12 +2,53 @@
 <html>
 <head>
 	<title>Welcome|Developer</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
 </head>
-<body>
+<body style="width:500px; margin:0 auto">
+	{%  block content %}
+
 	<h1>Welcome Zakia</h1>
-	<p>Are you a developer? and would love us to help make your calculations? You are at the right place.please feel free to register or login if you already have an account.</p>
-	<button type="submit"><a href="{{ url_for('register') }}">Register</a></button>
-	<button type="submit"><a href="{{ url_for('login') }}">Login</a></button>
-	<p>Sign In with your github account<a href="{{ url_for('github') }}">Sign In</a></p>
+	<p>Are you a developer? and would love us to help you make your calculations? You are at the right place.please feel free to register or login if you already have an account.</p>
+
+	<button type="submit" class="btn btn-secondary" ><a href="{{ url_for('register') }}" class="btn">Register</a></button>
+
+	<button type="submit" class="btn btn-secondary"><a href="{{ url_for('login') }}" class="btn">Login</a></button>
+
+	<p class="git">Sign In with your github account<a href="{{ url_for('github') }}"><span><i class="fab fa-github"></i></span></a></p>
+
+	{% endblock %}
+
+<style type="text/css">
+	
+	.git {
+		font-size: 20px;
+	}
+
+	.btn {
+		color: #fff;
+	}
+
+	a i{
+		font-size: 40px;
+		color: grey;
+	}
+
+	a:hover{
+        text-decoration: none;
+        color: #fff;
+	}
+
+</style>
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+	
 </body>
 </html>
