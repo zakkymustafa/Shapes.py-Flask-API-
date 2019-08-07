@@ -1,13 +1,45 @@
 import math
 from math import pi
-from flask import jsonify, request
+from flask import jsonify, request, render_template,flash
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager,UserMixin,login_user,logout_user,current_user
+from forms import RegistrationForm,LoginForm
+
 app = Flask(__name__)
+app.config['SECRET_KEY']= '2dfca79bbfaa26c3fa36f265427564'
+app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///site.db'
+db = SQLAlchemy(app)
+
+class User(db.Model):
+    id=db.Column(db.Integer,primary_key=True)
+    username=db.Column(db.String(30),unique=True,nullable=False)
+    email=db.Column(db.String(100),unique=True,nullable=False)
+    password=db.Column(db.String(50),nullable=False)
+
+    def __repr__(self):
+        return f"User('{self.username}','{self.email}')"
+
+
 
 
 @app.route("/",methods=["GET"])
 def home():
-    return jsonify({"about":"Welcome to my Calculator"})
+    return render_template("home.html")
+
+@app.route("/register",methods=["GET"])
+def register():
+    form=RegistrationForm()
+    return render_template("register.html",form=form)
+
+@app.route("/login",methods=["GET"])
+def login():
+    form=LoginForm()
+    return render_template("login.html",form=form)
+
+@app.route("/github_login",methods=["GET"])
+def github_login():
+    return render_template("gitlogin.html",)    
 
 # Start Circle
 @app.route("/area/circle/<int:radius>",methods=["GET"])
