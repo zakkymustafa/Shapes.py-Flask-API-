@@ -1,17 +1,29 @@
 import math
 from math import pi
-from flask import jsonify, request, render_template,flash
+from flask import jsonify, request, render_template,flash,redirect,session
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager,UserMixin,login_user,logout_user,current_user
 from forms import RegistrationForm,LoginForm
+from oauth import OAuthSignIn
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY']= '2dfca79bbfaa26c3fa36f265427564'
 app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///site.db'
-db = SQLAlchemy(app)
+app.config['OAUTH CREDENTIALS']= {
+    "github": {
+       "client_id": "47f92ab628588bc22769",
+       "client_secret": "b5da0114e0c6f50c3cc0c88b7968fa69aac1b092"
+    }
+}
 
-class User(db.Model):
+db = SQLAlchemy(app)
+lm=LoginManager(app)
+lm.login_view= "github"
+
+class User(UserMixin,db.Model):
+    __tablename__="users"
     id=db.Column(db.Integer,primary_key=True)
     username=db.Column(db.String(30),unique=True,nullable=False)
     email=db.Column(db.String(100),unique=True,nullable=False)
@@ -19,6 +31,41 @@ class User(db.Model):
 
     def __repr__(self):
         return f"User('{self.username}','{self.email}')"
+
+@lm.user_loader
+def load_user(id):
+    return User.query.get(int(id))
+
+@app.route("/logout")
+def logout():
+    logout_user()
+    return redirect(url_for("github"))
+
+
+@app.route('/authorize/<provider>')
+def oauth_authorize(provider):
+    if not current_user.is_anonymous:
+        return redirect(url_for('github'))
+    oauth = OAuthSignIn.get_provider(provider)
+    return oauth.authorize()
+
+
+@app.route('/login/callback/<provider>')
+def oauth_callback(provider):
+    if not current_user.is_anonymous:
+        return redirect(url_for('github'))
+    oauth = OAuthSignIn.get_provider(provider)
+    username, email = oauth.callback()
+    if username is None:
+        flash('Authentication failed.')
+        return redirect(url_for('github'))
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        user = User(username=username,email=email)
+        db.session.add(user)
+        db.session.commit()
+    login_user(user, True)
+    return redirect(url_for('github'))
 
 
 
@@ -37,9 +84,9 @@ def login():
     form=LoginForm()
     return render_template("login.html",form=form)
 
-@app.route("/github_login",methods=["GET"])
-def github_login():
-    return render_template("gitlogin.html",)    
+@app.route("/github",methods=["GET"])
+def github():
+    return render_template("gitlogin.html")   
 
 # Start Circle
 @app.route("/area/circle/<int:radius>",methods=["GET"])
@@ -85,6 +132,7 @@ def volume(radius):
 # End Sphere
 
 if __name__ == '__main__':
+    db.create_all()
     app.run(debug=True)
 
 
