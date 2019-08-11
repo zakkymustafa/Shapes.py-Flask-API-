@@ -13,18 +13,19 @@ app.config['SECRET_KEY']= '2dfca79bbfaa26c3fa36f265427564'
 app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///site.db'
 app.config['OAUTH CREDENTIALS']= {
     "github": {
-       "client_id": "47f92ab628588bc22769",
-       "client_secret": "b5da0114e0c6f50c3cc0c88b7968fa69aac1b092"
+       "id": "47f92ab628588bc22769",
+       "secret": "b5da0114e0c6f50c3cc0c88b7968fa69aac1b092"
     }
 }
 
 db = SQLAlchemy(app)
 lm=LoginManager(app)
-lm.login_view= "github"
+lm.login_view= "gitlogin"
 
 class User(UserMixin,db.Model):
     __tablename__="users"
     id=db.Column(db.Integer,primary_key=True)
+    social_id=db.Column(db.Integer)
     username=db.Column(db.String(30),unique=True,nullable=False)
     email=db.Column(db.String(100),unique=True,nullable=False)
     password=db.Column(db.String(50),nullable=False)
@@ -43,29 +44,18 @@ def logout():
 
 
 @app.route('/authorize/<provider>')
-def oauth_authorize(provider):
-    if not current_user.is_anonymous:
-        return redirect(url_for('github'))
+def oauth_authorize(provider):      #oauth start
     oauth = OAuthSignIn.get_provider(provider)
+    session['state'] = oauth.state
+    session['next'] = request.args.get('next', '')
     return oauth.authorize()
 
 
-@app.route('/login/callback/<provider>')
-def oauth_callback(provider):
-    if not current_user.is_anonymous:
-        return redirect(url_for('github'))
+@app.route('/callback/<provider>')
+def oauth_callback(provider):       #oauth callback
     oauth = OAuthSignIn.get_provider(provider)
-    username, email = oauth.callback()
-    if username is None:
-        flash('Authentication failed.')
-        return redirect(url_for('github'))
-    user = User.query.filter_by(username=username).first()
-    if not user:
-        user = User(username=username,email=email)
-        db.session.add(user)
-        db.session.commit()
-    login_user(user, True)
-    return redirect(url_for('github'))
+    social_id, username, email, url, jsonme = oauth.callback()
+    return oauth_callback()
 
 
 
