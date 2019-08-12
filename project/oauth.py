@@ -3,7 +3,7 @@ import json
 import requests
 import random
 import string
-from flask import current_app,redirect,session,url_for,request,abort
+from flask import current_app,redirect,session,url_for,request,abort,jsonify
 
 
 
@@ -78,10 +78,26 @@ class GitHubSignIn(OAuthSignIn):
         social_id = 'github$' + str(me['id'])
         nickname = me['login']
         email = None
-        url = 'https://github.com/' + me['login'] #TODO: be sure this isn't changed
+        url = 'https://github.com/' + me['login'] 
         return (social_id, nickname, email, url, me)
 
+def automatic_refresh():
+    token = session['oauth_token']
+    token['expires_at'] = time() - 10
 
+    extra = {
+        'client_id': client_id,
+        'client_secret': client_secret,
+    }
+    def token_updater(token):
+        session['oauth_token'] = token
+    github = OAuth2Service(client_id,
+                           token=token,
+                           auto_refresh_kwargs=extra,
+                           auto_refresh_url=refresh_url,
+                           token_updater=token_updater)
+    jsonify(github.get('https://api.github.com/user').json())
+    return jsonify(session['oauth_token'])
 
 
 

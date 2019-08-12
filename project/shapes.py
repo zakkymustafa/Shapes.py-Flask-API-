@@ -1,6 +1,6 @@
 import math
 from math import pi
-from flask import jsonify, request, render_template,flash,redirect,session
+from flask import jsonify, request, render_template,flash,redirect,session,url_for
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager,UserMixin,login_user,logout_user,current_user
@@ -52,10 +52,12 @@ def oauth_authorize(provider):      #oauth start
 
 
 @app.route('/callback/<provider>')
-def oauth_callback(provider):       #oauth callback
+def oauth_callback(provider):
     oauth = OAuthSignIn.get_provider(provider)
     social_id, username, email, url, jsonme = oauth.callback()
-    return oauth_callback()
+    return redirect(url_for(oauth_authorize))
+
+
 
 
 
