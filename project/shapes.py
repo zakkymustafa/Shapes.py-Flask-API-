@@ -44,7 +44,9 @@ def logout():
 
 
 @app.route('/authorize/<provider>')
-def oauth_authorize(provider):      #oauth start
+def oauth_authorize(provider):
+    if not current_user.is_anonymous:
+        return redirect(url_for('home'))     
     oauth = OAuthSignIn.get_provider(provider)
     session['state'] = oauth.state
     session['next'] = request.args.get('next', '')
@@ -54,10 +56,18 @@ def oauth_authorize(provider):      #oauth start
 @app.route('/callback/<provider>')
 def oauth_callback(provider):
     oauth = OAuthSignIn.get_provider(provider)
-    social_id, username, email, url, jsonme = oauth.callback()
-    return redirect(url_for(oauth_authorize))
-
-
+    import pdb;pdb.set_trace()
+    social_id, username, email,jsonme = oauth.callback()
+    if social_id is None:
+        flash('Authentication failed.')
+        return redirect(url_for('home'))
+    user = User.query.filter_by(social_id=social_id).first()
+    if not user:
+        user = User(social_id=social_id, nickname=username, email=email)
+        db.session.add(user)
+        db.session.commit()
+    login_user(user, True)
+    return redirect(url_for('home'))
 
 
 

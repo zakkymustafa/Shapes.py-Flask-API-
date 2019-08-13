@@ -8,10 +8,8 @@ from flask import current_app,redirect,session,url_for,request,abort,jsonify
 
 
 def jsondecoder(content):
-    try:
-        return json.loads(content.decode('utf-8'))
-    except Exception:
-        return json.loads(content)
+    new_data = data.decode('utf-8','strict')
+    return json.loads(new_data)
 
 
 class OAuthSignIn(object):
@@ -72,7 +70,7 @@ class GitHubSignIn(OAuthSignIn):
         #get token
         oauth_session = self.service.get_auth_session(
             data={'code': request.args['code'],
-                  'redirect_uri': self.get_callback_url()}
+                  'redirect_uri': self.get_callback_url()},
         )
         me = oauth_session.get('user').json()
         social_id = 'github$' + str(me['id'])
@@ -86,8 +84,8 @@ def automatic_refresh():
     token['expires_at'] = time() - 10
 
     extra = {
-        'client_id': client_id,
-        'client_secret': client_secret,
+        'client_id': "47f92ab628588bc22769",
+        'client_secret': "b5da0114e0c6f50c3cc0c88b7968fa69aac1b092",
     }
     def token_updater(token):
         session['oauth_token'] = token
@@ -105,55 +103,3 @@ def automatic_refresh():
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    # def authorize(self):
-    #      request_token = self.service.get_request_token(
-    #         params={'oauth_callback': self.get_callback_url()}
-    #     )
-    #     return redirect(self.service.get_authorize_url(
-    #         scope='email',
-    #         response_type='code',
-    #         redirect_uri=self.get_callback_url(),
-    #         )
-
-    #     )
-
-    # def callback(self):
-    #     # def decode_json(payload):
-    #     #     return json.loads(payload.decode())
-
-    #     if 'code' not in request.args:
-    #         return None, None, None
-    #     oauth_session = self.service.get_auth_session(
-    #         data={'code': request.args['code'],
-    #               'grant_type': 'authorization_code',
-    #               "redirect_uri":self.get_callback_url()},
-    #         # decoder = decode_json
-                  
-
-    #     )
-    #     me = oauth_session.get().json()
-    #     return (
-    #         'github$' + me['id'],
-    #         me.get('email').split('@')[0],  
-                                            
-    #         me.get('email')
-    #     )
-
-
-# 'me?fields=id,email'
